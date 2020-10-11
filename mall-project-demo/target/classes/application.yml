@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    password: 123456
+    url: jdbc:mysql://192.168.189.128:3306/iBook?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
+    username: root
+  #none：默认关闭集群session
+  session:
+    store-type: none
+
+#默认关闭安全框架    
+security:
+  basic:
+    enabled: true
+
+#修改服务端口地址
+server: 
+  port: 8060
+  
+logging: 
+  config: classpath:log4j2_dev.xml
+  
+file: 
+  base:
+    winpath: 'D:/apache-tomcat-9.0.33/webapps/web_resources/imooc/files/'
+    netpath: 'http://localhost:8088/web_resources/imooc/files/'

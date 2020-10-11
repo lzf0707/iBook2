@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.mall.project</groupId>
+    <artifactId>mall-project</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
+  <artifactId>mall-project-api</artifactId>
+  <packaging>war</packaging>
+   <dependencies>
+   <!-- Servlet web -->
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>		
+		<scope>provided</scope>	 	
+	</dependency>
+	
+	
+  	<!-- 浏览器安全模块 -->
+  	<dependency>
+  		<groupId>com.mall.project</groupId>
+  		<!-- <artifactId>mall-project-security-app</artifactId> -->
+  		<artifactId>mall-project-security-browser</artifactId>
+  		<version>${imooc.security.version}</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.mall.project</groupId>
+  		<artifactId>mall-project-service</artifactId>
+  		<version>${imooc.security.version}</version>
+  	</dependency>
+  	<!-- 使用热部署 -->
+  	<dependency>
+  		<groupId>org.springframework.boot</groupId>
+  		<artifactId>spring-boot-devtools</artifactId>
+  		<optional>true</optional>
+  	</dependency>
+	   <dependency>
+		   <groupId>mysql</groupId>
+		   <artifactId>mysql-connector-java</artifactId>
+		   <version>8.0.20</version>
+		   <scope>compile</scope>
+	   </dependency>
+
+   </dependencies>
+  
+  <build>
+    <!-- 引入插件，重新打包jar包，按spring boot标准应用进行打包 -->
+	<plugins>
+		<plugin>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-maven-plugin</artifactId>
+			<version>1.5.6.RELEASE</version>
+			<executions>
+				<execution>
+					<goals>
+						<goal>repackage</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+	<!-- 打包名称 -->
+	<finalName>iBook</finalName>
+</build>
+</project>

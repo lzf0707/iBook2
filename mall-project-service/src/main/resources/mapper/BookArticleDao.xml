@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.BookArticleDao">
+
+	<resultMap type="com.mall.model.BookArticle" 
+		id="articleMap">
+		<id property="articleId" column="article_id"/>
+		<result property="articleName" column="article_name"/>
+		<result property="articleDesc" column="article_desc"/>
+		<result property="createTime" column="create_time"/>
+		<result property="lastEditTime" column="last_edit_time"/>
+		<result property="enableStatus" column="enable_status"/>
+		<result property="bookId" column="book_id"/>
+		<result property="point" column="point"/>
+		<result property="priority" column="priority"/>
+		<collection property="contentList" column="article_id"
+			ofType="com.mall.model.BookContent">
+			<id property="bookContentId" column="book_content_id"/>
+			<result property="bookContentImg" column="book_content_img"/>
+			<result property="bookContentDesc" column="book_content_desc"/>
+			<result property="priority" column="bc_priority"/>
+			<result property="createTime" column="bc_create_time"/>
+			<result property="articleId" column="article_id"/>
+		</collection>
+	</resultMap>
+	
+	<insert id="insertArticle" useGeneratedKeys="true"
+		keyColumn="article_id" keyProperty="articleId">
+		INSERT INTO tb_book_article (
+			article_name,
+			article_desc,
+			create_time,
+			last_edit_time,
+			enable_status,
+			book_id,
+			point,
+			priority
+		) VALUES (
+			#{articleName},
+			#{articleDesc},
+			NOW(),NOW(),1,
+			#{bookId},
+			#{point},
+			#{priority}
+		);
+	</insert>
+	
+	<delete id="deleteArticle">
+		DELETE FROM tb_book_article WHERE article_id=#{articleId};
+	</delete>
+	
+	<update id="updateArticle">
+		UPDATE tb_book_article
+		<set>
+			<if test="enableStatus != null">enable_status=#{enableStatus},</if>
+			<if test="point != null">point=#{point},</if>
+			<if test="articleDesc != null">article_desc=#{articleDesc},</if>
+			<if test="articleName != null">article_name=#{articleName},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			last_edit_time=#{lastEditTime}
+		</set>
+		WHERE article_id=#{articleId};
+	</update>
+	
+	<select id="queryArticleList" 
+		resultType="com.mall.model.BookArticle">
+		SELECT 
+			a.article_id,
+			a.article_name,
+			a.article_desc,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.enable_status,
+			a.book_id,
+			a.point,
+			a.priority,
+			CASE WHEN a.point = 0 THEN a.article_id ELSE IFNULL(b.article_id,'-') END lock_flag
+		FROM 
+			tb_book_article a
+		LEFT JOIN (
+			SELECT * FROM tb_user_article WHERE user_id = #{userId}
+		) b ON a.article_id = b.article_id AND a.book_id = b.book_id
+		<where>
+			<if test="articleCondition.enableStatus != null">AND a.enable_status=#{articleCondition.enableStatus}</if>
+			<if test="articleCondition.bookId != null">AND a.book_id=#{articleCondition.bookId}</if>
+		</where>
+		ORDER BY a.priority
+		<if test="sortFlag != null and sortFlag =='asc'.toString()">ASC</if>
+		<if test="sortFlag != null and sortFlag =='desc'.toString()">DESC</if>
+	</select>
+	
+	<select id="queryArticleCount" resultType="int">
+		SELECT 
+			count(1)
+		FROM 
+			tb_book_article
+		<where>
+			<if test="articleCondition.enableStatus != null">AND enable_status=#{articleCondition.enableStatus}</if>
+			<if test="articleCondition.bookId != null">AND book_id=#{articleCondition.bookId}</if>
+		</where>
+		ORDER BY priority
+		<if test="sortFlag != null and sortFlag =='asc'.toString()">ASC</if>
+		<if test="sortFlag != null and sortFlag =='desc'.toString()">DESC</if>
+	</select>
+	
+	<select id="queryArticleById" resultMap="articleMap">
+		SELECT 
+			a.article_id,
+			a.article_name,
+			a.article_desc,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d') last_edit_time,
+			a.enable_status,
+			a.book_id,
+			a.point,
+			a.priority,
+			b.book_content_id,
+			b.book_content_img,
+			b.book_content_desc,
+			b.priority bc_priority,
+			date_format(b.create_time,'%Y-%m-%d') bc_create_time
+		FROM 
+			tb_book_article a,tb_book_content b 
+		WHERE a.article_id = b.article_id 
+		AND a.article_id=#{articleId}
+		ORDER BY b.priority ASC
+		LIMIT #{rowIndex},#{pageSize};
+	</select>
+	
+	<select id="queryArticleCountById" resultType="int">
+		SELECT 
+			count(1)		
+		FROM 
+			tb_book_article a,tb_book_content b 
+		WHERE a.article_id = b.article_id 
+		AND a.article_id=#{articleId}
+		ORDER BY b.priority ASC
+	</select>
+	
+	<select id="queryLastNextArticleId" resultType="com.mall.model.BookArticle">
+		SELECT 
+			a.article_id,
+			IFNULL(b.article_id,-1) last_id,
+			IFNULL(c.article_id,-1) next_id 
+		FROM (
+			SELECT * FROM tb_book_article a WHERE article_id = #{articleId}
+		) a 
+		LEFT JOIN tb_book_article b ON a.book_id = b.book_id AND b.priority = a.priority - 1 
+		LEFT JOIN tb_book_article c ON a.book_id = c.book_id AND c.priority = a.priority + 1 
+	</select>
+
+</mapper>

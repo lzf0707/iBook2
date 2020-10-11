@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.AreaDao">
+
+	<select id="queryArea" resultType="com.mall.model.Area">
+		SELECT 
+			area_id,
+			area_name,
+			priority,
+			date_format(create_time,'%Y-%m-%d') create_time,
+			date_format(last_edit_time,'%Y-%m-%d') last_edit_time
+		FROM 
+			tb_area
+		ORDER BY priority DESC;
+	</select>
+	
+	<select id="queryAreaById" resultType="com.mall.model.Area">
+		SELECT 
+			area_id,
+			area_name,
+			priority,
+			date_format(create_time,'%Y-%m-%d') create_time,
+			date_format(last_edit_time,'%Y-%m-%d') last_edit_time
+		FROM 
+			tb_area
+		WHERE area_id = #{areaId}
+		ORDER BY priority DESC;
+	</select>
+	
+	<insert id="addArea" useGeneratedKeys="true" 
+		keyProperty="areaId" keyColumn="area_id">
+		INSERT INTO tb_area(
+			area_name,priority,create_time,last_edit_time
+		) VALUES (
+			#{areaName},
+			#{priority},
+			NOW(),
+			NOW()
+		);		
+	</insert>
+	
+	<update id="updateArea" parameterType="com.mall.model.Area">
+		UPDATE tb_area Set 			
+			<if test="areaName != null">area_name=#{areaName},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			last_edit_time=NOW()
+		WHERE area_id=#{areaId};
+	</update>
+	
+	<delete id="deleteAreaById">
+		DELETE FROM tb_area WHERE area_id = #{areaId};
+	</delete>
+	
+	<delete id="batchDeleteAreaByIds" parameterType="long">
+		DELETE FROM tb_area WHERE area_id IN 
+		<foreach collection="areaIdList" item="areaId" open="("
+			separator="," close=")">
+			#{areaId}	
+		</foreach>
+	</delete>
+
+
+</mapper>

@@ -1,0 +1,109 @@
+
+
+.text-wrap{
+	position: absolute;
+    background: rgba(0,144,255,0.8);
+    padding: 5px;
+    width: 100%;
+    bottom: 0px;
+}
+
+.swiper-pagination-bullet{
+	background:  aliceblue;
+}
+
+.swiper-pagination{
+	text-align: right;
+}
+
+.index-banner {
+    height: 60%;
+    padding-bottom: 0.4rem;
+}
+.img-wrap {
+    overflow: hidden;
+    
+}
+.banner-img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+.total-book-button {
+    height: 1.5rem;
+    line-height: 1.5rem;
+    padding-left: 0.85rem;
+    margin-bottom: 0.4rem;
+    position: relative;
+    cursor: pointer;
+}
+.total-book-button:before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    width: 0.15rem;
+    height: 1.5rem;
+    background-color: #0894ec;
+}
+.book-classify {
+    height: 3.3rem;
+    padding: 0.2rem;
+    cursor: pointer;
+}
+.book-classify > .word {
+    width: 65%;
+    height: 100%;
+    overflow: hidden;
+    float: left;
+}
+.book-classify > .word > p {
+    margin: 0;
+}
+.book-classify > .word > .book-title {
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: blueviolet;
+}
+.book-classify > .word > .book-desc {
+    margin: 0;
+    font-size: 0.6rem;
+    font-family: cursive;
+}
+
+
+.book-classify > .book-classify-img-warp {
+    width: 30%;
+    height: 100%;
+    margin-left: 0.2rem;
+    display: inline-block;
+}
+.book-classify > .book-classify-img-warp > a >.book-img {
+    width: 100%;
+    height: 100%;
+}
+
+.row {
+    overflow: hidden;
+    margin-left: -4%;
+    background-color: blanchedalmond;
+    margin-top: -8px;
+    padding: 10px;
+}
+
+.total-book-button{
+    height: 1.5rem;
+    line-height: 1.5rem;
+    padding-left: 0.85rem;
+    margin-bottom: 0.4rem;
+    position: relative;
+    cursor: pointer;
+    background-color: black;
+    margin-top: 10px;
+}
+
+.dev-info{
+    margin: 10px;
+    text-align: center;
+}

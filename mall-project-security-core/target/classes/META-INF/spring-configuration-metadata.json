@@ -1,0 +1,36 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.mall.security.properties.SecurityProperties",
+      "name": "mall.security",
+      "type": "com.mall.security.properties.SecurityProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.mall.security.properties.SecurityProperties",
+      "name": "mall.security.browser",
+      "description": "浏览器环境配置",
+      "type": "com.mall.security.properties.BrowserProperties"
+    },
+    {
+      "sourceType": "com.mall.security.properties.SecurityProperties",
+      "name": "mall.security.code",
+      "description": "验证码配置",
+      "type": "com.mall.security.properties.ValidateCodeProperties"
+    },
+    {
+      "sourceType": "com.mall.security.properties.SecurityProperties",
+      "name": "mall.security.oauth2",
+      "description": "APP client 配置",
+      "type": "com.mall.security.properties.OAuth2Properties"
+    },
+    {
+      "sourceType": "com.mall.security.properties.SecurityProperties",
+      "name": "mall.security.social",
+      "description": "第三方认证配置",
+      "type": "com.mall.security.properties.SocialProperties"
+    }
+  ]
+}

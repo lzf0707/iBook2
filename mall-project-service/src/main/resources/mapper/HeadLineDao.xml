@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.HeadLineDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.mall.entity.HeadLineEntity" id="headLineMap">
+        <result property="lineId" column="line_id"/>
+        <result property="lineName" column="line_name"/>
+        <result property="lineLink" column="line_link"/>
+        <result property="lineImg" column="line_img"/>
+        <result property="priority" column="priority"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastEditTime" column="last_edit_time"/>
+    </resultMap>
+</mapper>

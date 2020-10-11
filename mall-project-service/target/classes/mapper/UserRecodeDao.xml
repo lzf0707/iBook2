@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.UserRecodeDao">
+    
+	<resultMap type="com.mall.model.UserRecode" 
+		id="userRecodeMap">
+		<id property="userRecodeId" column="user_recode_id"/>
+		<result property="userId" column="user_id"/>
+		<result property="point" column="point"/>
+		<result property="createTime" column="create_time"/>
+		<association property="book"  column="book_id"
+			javaType="com.mall.model.Book">
+			<id column="book_id" property="bookId"/>
+			<result column="book_name" property="bookName"/>
+		</association>
+		<association property="article" column="article_id" 
+			javaType="com.mall.model.BookArticle">
+			<id column="article_id" property="articleId"/>
+			<result column="article_name" property="articleName"/>
+		</association>
+	</resultMap>
+	
+	<select id="queryUserRecodeList" 
+		resultMap="userRecodeMap">
+		SELECT 
+			a.user_recode_id,
+			a.point,
+			a.user_id,
+			b.book_id,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			b.book_name,
+			c.article_id,
+			c.article_name
+		FROM 
+			tb_user_recode a,tb_book b,tb_book_article c 
+		<where>
+			a.book_id = b.book_id AND a.article_id = c.article_id
+			<if test="userRecode != null and userRecode.userId != null">
+				AND a.user_id=#{userRecode.userId}
+			</if>
+			<if test="userRecode != null and userRecode.article != null
+				and userRecode.article.articleName != null
+				and userRecode.book != null
+				and userRecode.book.bookName != null">
+				AND (c.article_name like '%${userRecode.article.articleName}%'
+				OR b.book_name like '%${userRecode.book.bookName}%')
+			</if>
+		</where>
+		ORDER BY a.create_time DESC
+		LIMIT #{pageIndex},#{pageSize};
+	</select>
+	
+	<select id="queryUserRecodeCount" resultType="int">
+		SELECT 
+			COUNT(1)
+		FROM 
+			tb_user_recode a,tb_book b,tb_book_article c 
+		<where>
+			a.book_id = b.book_id AND a.article_id = c.article_id
+			<if test="userRecode != null and userRecode.userId != null">
+				AND a.user_id=#{userRecode.userId}
+			</if>
+			<if test="userRecode != null and userRecode.article != null
+				and userRecode.article.articleName != null
+				and userRecode.book != null
+				and userRecode.book.bookName != null">
+				AND (c.article_name like '%${userRecode.article.articleName}%'
+				OR b.book_name like '%${userRecode.book.bookName}%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryAllUserRecodePoint" resultType="int">
+		SELECT 
+			IFNULL(SUM(a.point),0)
+		FROM 
+			tb_user_recode a,tb_book b,tb_book_article c 
+		<where>
+			a.book_id = b.book_id AND a.article_id = c.article_id
+			<if test="userRecode != null and userRecode.userId != null">
+				AND a.user_id=#{userRecode.userId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryUserRecodeByUserAndArticleId" 
+		resultMap="userRecodeMap">
+		SELECT 
+			a.user_recode_id,
+			a.point,
+			a.user_id,
+			b.book_id,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			b.book_name,
+			c.article_id,
+			c.article_name
+		FROM 
+			tb_user_recode a,tb_book b,tb_book_article c 
+		WHERE  a.book_id = b.book_id 
+		AND a.article_id = c.article_id
+		AND a.article_id=#{articleId} AND a.user_id=#{userId};
+	</select>
+	
+	<insert id="insertUserRecode" useGeneratedKeys="true" 
+		keyColumn="user_recode_id" keyProperty="userRecodeId">
+		INSERT INTO tb_user_recode (
+			user_id,
+			point,
+			create_time,
+			book_id,
+			article_id
+		) VALUES (
+			#{userId},
+			#{point},
+			NOW(),
+			#{book.bookId},
+			#{article.articleId}
+		)
+	</insert>
+
+</mapper>

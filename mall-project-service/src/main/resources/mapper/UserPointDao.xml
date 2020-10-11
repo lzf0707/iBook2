@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.UserPointDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.mall.entity.UserPointEntity" id="userPointMap">
+        <result property="userPointId" column="user_point_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="point" column="point"/>
+        <result property="createTime" column="create_time"/>
+        <result property="lastEditTime" column="last_edit_time"/>
+    </resultMap>
+	<select id="queryUserPointByUserId" 
+		resultType="com.mall.model.UserPoint">
+		SELECT 
+			user_point_id,
+			user_id,
+			point,
+			date_format(create_time,'%Y-%m-%d') create_time,
+			date_format(last_edit_time,'%Y-%m-%d') last_edit_time
+		FROM tb_user_point
+		WHERE user_id = #{userId};
+	</select>
+	
+	<update id="updateUserPoint">
+		UPDATE tb_user_point 
+		<set>
+			<if test="point != null">point=#{point},</if>
+			last_edit_time = NOW()
+		</set>
+		WHERE user_id = #{userId};
+	</update>
+	
+	<insert id="insertUserPoint" useGeneratedKeys="true"
+		keyColumn="user_point_id" keyProperty="userPointId">
+		INSERT INTO tb_user_point (
+			user_id,
+			point,
+			create_time,
+			last_edit_time
+		) VALUES (
+			#{userId},
+			#{point},
+			NOW(),
+			NOW()
+		);
+	</insert>
+
+</mapper>

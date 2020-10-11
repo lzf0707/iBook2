@@ -1,0 +1,136 @@
+spring: 
+  aop:
+    proxy-target-class: false
+  datasource:
+    #url: jdbc:mysql://192.168.189.128:3306/iBook?useUnicode=yes&characterEncoding=UTF-8&useSSL=false
+    #username: root
+    #password: 123456
+    #driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://www.hzb2i.com:3306/ibook?serverTimezone=GMT%2B8&amp&useSSL=false&useUnicode=true&characterEncoding=utf-8&allowPublicKeyRetrieval=true
+    username: lzf
+    #password: 123456
+    password: jDPTETE+KrM8/eOvpMVJsoFmL35s2GPipnae9Y0E2HApVBc7FtTGnBoHoVyhizSLD9ULFbZzcU3yKsvko0SroA==
+    driverClassName: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      initial-size: 5 #连接池初始化大小
+      min-idle: 10 #最小空闲连接数
+      max-active: 20 #最大连接数
+      web-stat-filter:
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*" #不统计这些请求数据
+      stat-view-servlet: #访问监控网页的登录用户名和密码
+        login-username: druid
+        login-password: druid
+      connect-properties:
+        config.decrypt: true
+        config.decrypt.key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKerfp4I6SmRh22i6tK04Pxkb2mZluLTCIsuoGv+Cllzt3YbBd0mWq0qWRHsPnE1/Xl/tcNjrUQDfpmfPeyUzpUCAwEAAQ==
+      filter:
+        config:
+          enabled: true
+  #none：默认关闭集群session
+  session:
+    store-type: redis
+  redis:
+    #host: 192.168.189.128
+    host: www.hzb2i.com
+    port: 6379
+    pool:
+      max-active: 100
+      max-idle: 20
+      max-wait: 3000
+
+# mybaits-plus配置
+mybatis-plus:
+  # MyBatis Mapper所对应的XML文件位置
+  mapper-locations: classpath*:/mapper/*Dao.xml
+  global-config:
+    # 关闭MP3.0自带的banner
+    banner: false
+    db-config:
+      # 主键类型 0:数据库ID自增 1.未定义 2.用户输入 3 id_worker 4.uuid 5.id_worker字符串表示
+      id-type: AUTO
+      #字段策略 0:"忽略判断",1:"非 NULL 判断"),2:"非空判断"
+      field-strategy: NOT_NULL
+      # 默认数据库表下划线命名
+      table-underline: true
+
+#默认关闭安全框架    
+security:
+#  oauth2:
+#    client:
+#      client-id: api
+#      client-secret: apiSecret
+  basic:
+    enabled: true
+
+#修改服务端口地址
+server: 
+  port: 8076
+  context-path: /iBook
+  session:
+    timeout: 600
+  
+logging: 
+  config: classpath:log4j2_dev.xml
+  
+file: 
+  base:
+    winpath: 'D:/apache-tomcat-9.0.33/webapps/web_resources/imooc/files/'
+    netpath: 'http://localhost:8088/web_resources/imooc/files/'
+
+mall:
+  security: 
+    social:
+      filter-processes-url: /qqLogin
+      qq:
+        provider-id : callback.do
+        app-id: 100550231
+        app-secret: 69b6ab57b22f3c2fe6a6149274e3295e
+      weixin:
+        #provider-id: 
+        app-id: wxd99431bbff8305a0
+        app-secret: 60f78681d063590a469f1b297feff3c4  
+    browser:
+      #session:
+        #max-sessions-prevents-login: true 
+      sign-up-url: /frontend/apiSignUp
+      login-url: /frontend/login #默认的登录页
+      #login-type: REDIRECT #REDIRECT 登录成功、失败都进行跳转、JSON 登录成功、失败都返回json信息
+    code: 
+      image:
+        height : 100   #验证码高度 
+        width : 30   #验证码宽带      
+        expire-in: 30  #过期时间    
+        length : 4  #验证码长度
+        url : /authentication/logincheck #需要拦截的url
+      sms:
+        expire-in: 60   #过期时间
+        length: 6 #验证码长度
+        url : /authentication/mobile     #需要拦截的url
+    oauth2:
+      #store-type: redis
+      clients:
+        - client-id: api
+          client-secret: apiSecret
+          access-token-validity-seconds: 60
+        - client-id: imooc
+          client-secret: imoocSecret
+        
+      
+      
+
+kaptcha:
+  border: 'no'
+  image:
+    height: 50
+    width: 135
+  noise:
+    color: black
+  textproducer:
+    char:
+      length: 4
+      string: ACDEFHKPRSTWX345679
+    font:
+      color: red
+      names: Arial
+      size: 43

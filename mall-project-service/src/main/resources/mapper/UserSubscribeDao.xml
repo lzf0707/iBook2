@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.UserSubscribeDao">
+
+    <resultMap type="com.mall.model.Book" id="bookMap">
+        <id column="book_id" property="bookId"/>
+        <result column="book_name" property="bookName"/>
+        <result column="book_desc" property="bookDesc"/>
+        <result column="book_img" property="bookImg"/>
+        <result column="priority" property="priority"/>
+        <result column="create_time" property="createTime"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+        <result column="enable_status" property="enableStatus"/>
+        <result column="end_status" property="endStatus"/>
+        <result column="author" property="author"/>
+        <association column="ower_id" property="ower"
+                     javaType="com.mall.model.PersonInfo">
+            <id column="ower_id" property="userId"/>
+            <result column="name" property="name"/>
+        </association>
+        <association column="area_id" property="area"
+                     javaType="com.mall.model.Area">
+            <id column="area_id" property="areaId"/>
+            <result column="area_name" property="areaName"/>
+        </association>
+        <association column="book_category_id" property="bookCategory"
+                     javaType="com.mall.model.BookCategory">
+            <id column="book_category_id" property="bookCategoryId"/>
+            <result column="book_category_name" property="bookCategoryName"/>
+        </association>
+    </resultMap>
+
+    <select id="selectBookList" resultMap="bookMap">
+        SELECT
+        a.book_id,
+        c.user_id ower_id,
+        c.name,
+        b.area_id,
+        b.area_name,
+        d.book_category_id,
+        d.book_category_name,
+        a.book_name,
+        a.book_desc,
+        a.book_img,
+        a.priority,
+        case
+        when a.author is null
+        or isNull(a.author)=0 then '暂无信息'
+        else a.author
+        end author,
+        date_format(a.create_time,'%Y-%m-%d') create_time,
+        date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+        a.enable_status,a.end_status
+        FROM
+        tb_book a
+        LEFT JOIN tb_area b ON a.area_id=b.area_id
+        LEFT JOIN tb_person_info c ON a.ower_id = c.user_id
+        LEFT JOIN tb_book_category d ON a.book_category_id=d.book_category_id
+        INNER JOIN tb_user_subscribe e ON a.book_id = e.book_id
+        WHERE e.user_id = #{userId} <!-- 查看自己订阅记录 -->
+        ORDER BY a.create_time,a.priority DESC
+    </select>
+
+</mapper>

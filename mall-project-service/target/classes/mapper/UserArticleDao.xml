@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.UserArticleDao">
+
+    <select id="getUnLockArticleList" resultType="com.mall.entity.BookArticleEntity">
+        SELECT
+            a.*
+        FROM tb_book_article a
+        LEFT JOIN (
+            SELECT * FROM tb_user_article  WHERE user_id = #{userId}
+        ) b ON a.book_id = b.book_id AND a.article_id = b.article_id
+        WHERE a.book_id = #{bookId} AND b.book_id IS NULL AND a.point > 0
+    </select>
+
+    <select id="getUnLockArticlesTotalPoint" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(SUM(a.point),0) totalPoint
+        FROM tb_book_article a
+        LEFT JOIN (
+            SELECT * FROM tb_user_article  WHERE user_id = #{userId}
+        ) b ON a.book_id = b.book_id AND a.article_id = b.article_id
+        WHERE a.book_id = #{bookId} AND b.book_id IS NULL AND a.point > 0
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO tb_user_article ( user_id, article_id, create_time, point, book_id ) VALUES
+        <foreach collection="list" item="bookArticle" separator=",">
+            (#{userId},#{bookArticle.articleId},NOW(),#{bookArticle.point},#{bookArticle.bookId})
+        </foreach>
+    </insert>
+
+    <resultMap type="com.mall.model.UserArticle"
+               id="userArticleMap">
+        <id property="userArticleId" column="user_Article_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="point" column="point"/>
+        <association property="book"  column="book_id" javaType="com.mall.model.Book">
+            <id column="book_id" property="bookId"/>
+            <result column="book_name" property="bookName"/>
+        </association>
+        <association property="article" column="article_id" javaType="com.mall.model.BookArticle">
+            <id column="article_id" property="articleId"/>
+            <result column="article_name" property="articleName"/>
+        </association>
+    </resultMap>
+
+    <select id="selectUserArticleList"
+            resultMap="userArticleMap">
+        SELECT
+        a.user_Article_id,
+        a.user_id,
+        a.point,
+        b.book_id,
+        date_format(a.create_time,'%Y-%m-%d') create_time,
+        b.book_name,
+        c.article_id,
+        c.article_name
+        FROM
+        tb_user_article a,tb_book b,tb_book_article c
+        WHERE a.book_id = b.book_id AND a.article_id = c.article_id
+        AND a.user_id=#{userId}
+        <if test="info != null">
+            AND (c.article_name like '%${info}%'
+            OR b.book_name like '%${info}%')
+        </if>
+        <if test="bookId > 0">
+            AND a.book_id = #{bookId}
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+
+    <select id="selectExChangePoint" resultType="java.lang.Integer">
+        SELECT
+            IFNULL(count(a.point),0) allPoint
+        FROM
+        tb_user_article a,tb_book b,tb_book_article c
+        WHERE a.book_id = b.book_id AND a.article_id = c.article_id
+        AND a.user_id=#{userId}
+    </select>
+</mapper>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.BookCategoryDao">
+
+	<resultMap type="com.mall.model.BookCategory" 
+		id="bookCategoryMap">
+		<id column="book_category_id" property="bookCategoryId"/>
+		<result column="book_category_name" property="bookCategoryName"/>
+		<result column="book_category_desc" property="bookCategoryDesc"/>
+		<result column="book_category_img" property="bookCategoryImg"/>
+		<result column="priority" property="priority"/>
+		<result column="create_time" property="createTime"/>
+		<result column="last_edit_time" property="lastEditTime"/>
+		<association column="parent_id" property="parent"
+			javaType="com.mall.model.BookCategory">
+			<id column="parent_id" property="bookCategoryId"/>
+			<result column="parent_name" property="bookCategoryName"/>
+		</association>
+	</resultMap>
+	
+	<insert id="addBookCategory" useGeneratedKeys="true"
+		keyProperty="bookCategoryId" keyColumn="book_category_id">
+		INSERT INTO tb_book_category (
+			book_category_name,
+			book_category_desc,
+			book_category_img,
+			priority,
+			create_time,
+			last_edit_time,
+			parent_id
+		) VALUES(
+			#{bookCategoryName},
+			#{bookCategoryDesc},
+			#{bookCategoryImg},
+			#{priority},
+			NOW(),
+			NOW(),
+			#{parent.bookCategoryId}
+		);
+	</insert>
+	
+	
+	<select id="queryBookCategoryListCount" resultType="int">
+		SELECT 
+			count(1)
+		FROM 
+			tb_book_category a
+		LEFT JOIN tb_book_category b ON a.parent_id = b.book_category_id
+		<where>
+			<if test="bookCategoryCondition.parent != null and  bookCategoryCondition.parent.bookCategoryId != null">a.parent_id = #{bookCategoryCondition.parent.bookCategoryId}</if>
+			<if test="bookCategoryCondition.bookCategoryName != null"> AND a.book_category_name LIKE CONCAT('%',#{bookCategoryCondition.bookCategoryName},'%')</if>
+		</where>
+		ORDER BY a.priority DESC;
+	</select>
+	
+	<select id="queryBookCategoryById" resultMap="bookCategoryMap">
+		SELECT 
+			a.book_category_id,
+			a.book_category_name,
+			a.book_category_desc,
+			a.book_category_img,
+			a.priority,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.parent_id,
+			b.book_category_name parent_name
+		FROM 
+			tb_book_category a
+		LEFT JOIN tb_book_category b ON a.parent_id = b.book_category_id
+		WHERE a.book_category_id = #{bookCategoryId}
+		ORDER BY priority DESC;
+	</select>
+	
+	<select id="queryBookCategoryByIds" resultMap="bookCategoryMap">
+		SELECT 
+			a.book_category_id,
+			a.book_category_name,
+			a.book_category_desc,
+			a.book_category_img,
+			a.priority,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.parent_id,
+			b.book_category_name parent_name
+		FROM 
+			tb_book_category a
+		LEFT JOIN tb_book_category b ON a.parent_id = b.book_category_id
+		WHERE a.book_category_id IN
+		<foreach collection="list" item="bookCategoryId" 
+			open="(" close=")" separator=",">
+			#{bookCategoryId}
+		</foreach>	
+		ORDER BY priority DESC; 
+	</select>
+	
+	
+	
+	<update id="updateBookCategory" parameterType="com.mall.model.BookCategory">
+		UPDATE tb_book_category
+		<set>
+			<if test="bookCategoryName != null">book_category_name=#{bookCategoryName},</if>
+			<if test="bookCategoryDesc != null">book_category_desc=#{bookCategoryDesc},</if>
+			<if test="bookCategoryImg != null">book_category_img=#{bookCategoryImg},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			last_edit_time=NOW()			
+		</set>  
+		WHERE book_category_id = #{bookCategoryId};
+	</update>
+	
+	<delete id="deleteBookCategory">
+		DELETE FROM tb_book_category WHERE book_category_id = #{bookCategoryId};
+	</delete>
+	
+	<delete id="batchDeleteBookCategory">
+		DELETE FROM tb_book_category WHERE book_category_id IN 
+		<foreach collection="list" item="bookCategoryId" open="("
+			close=")" separator=",">
+			#{bookCategoryId}	
+		</foreach>
+	</delete>
+
+	<select id="queryBookCategoryList" resultMap="bookCategoryMap">
+		SELECT 
+			a.book_category_id,
+			a.book_category_name,
+			a.book_category_desc,
+			a.book_category_img,
+			a.priority,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.parent_id,
+			b.book_category_name parent_name
+		FROM 
+			tb_book_category a
+		LEFT JOIN tb_book_category b ON a.parent_id = b.book_category_id
+		<where>
+			<if test="bookCategoryCondition.parent != null and  bookCategoryCondition.parent.bookCategoryId != null">a.parent_id = #{bookCategoryCondition.parent.bookCategoryId}</if>
+			<if test="bookCategoryCondition.bookCategoryName != null"> AND a.book_category_name LIKE CONCAT('%',#{bookCategoryCondition.bookCategoryName},'%')</if>
+		</where>
+		ORDER BY a.priority DESC
+	</select>
+</mapper>

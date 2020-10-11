@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.BookDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.mall.model.Book" id="bookMap">
+		<id column="book_id" property="bookId"/>
+		<result column="book_name" property="bookName"/>
+		<result column="book_desc" property="bookDesc"/>
+		<result column="book_img" property="bookImg"/>
+		<result column="priority" property="priority"/>
+		<result column="create_time" property="createTime"/>
+		<result column="last_edit_time" property="lastEditTime"/>
+		<result column="enable_status" property="enableStatus"/>
+		<result column="end_status" property="endStatus"/>
+		<result column="author" property="author"/>
+		<association column="ower_id" property="ower" 
+			javaType="com.mall.model.PersonInfo">
+			<id column="ower_id" property="userId"/>
+			<result column="name" property="name"/>
+		</association>
+		<association column="area_id" property="area"
+			javaType="com.mall.model.Area">
+			<id column="area_id" property="areaId"/>
+			<result column="area_name" property="areaName"/>
+		</association>
+		<association column="book_category_id" property="bookCategory"
+			javaType="com.mall.model.BookCategory">
+			<id column="book_category_id" property="bookCategoryId"/>
+			<result column="book_category_name" property="bookCategoryName"/>
+		</association>
+	</resultMap>
+
+	<select id="selectIndexRecommend" resultMap="bookMap">
+		SELECT
+			a.book_id,
+			c.user_id ower_id,
+			c.name,
+			b.area_id,
+			b.area_name,
+			d.book_category_id,
+			d.book_category_name,
+			a.book_name,
+			a.book_desc,
+			a.book_img,
+			a.priority,
+			case
+				when a.author is null or isNull(a.author)=0 then '暂无信息'
+				else a.author
+			end author,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.enable_status,a.end_status
+		FROM
+			tb_book a
+		LEFT JOIN tb_area b ON a.area_id=b.area_id
+		LEFT JOIN tb_person_info c ON a.ower_id = c.user_id
+		LEFT JOIN tb_book_category d ON a.book_category_id=d.book_category_id
+		INNER JOIN (
+			SELECT * FROM (
+				SELECT book_id,COUNT(DISTINCT user_id) num FROM
+				<if test="flag == 1">tb_user_subscribe</if>
+				<if test="flag == 2">tb_user_history</if>
+				<if test="flag == 3">tb_user_article</if>
+				GROUP BY book_id
+			) a ORDER BY a.num DESC LIMIT 0,6
+		) e ON a.book_id = e.book_id
+		ORDER BY e.num DESC
+	</select>
+
+	<select id="queryBookList" resultMap="bookMap">
+		SELECT 
+			a.book_id,
+			c.user_id ower_id,
+			c.name,
+			b.area_id,
+			b.area_name,
+			d.book_category_id,
+			d.book_category_name,
+			a.book_name,
+			a.book_desc,
+			a.book_img,
+			a.priority,
+			case 
+				when a.author is null 
+					or isNull(a.author)=0 then '暂无信息' 
+				else a.author 
+			end author,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.enable_status,a.end_status
+		FROM 
+			tb_book a
+		LEFT JOIN tb_area b ON a.area_id=b.area_id
+		LEFT JOIN tb_person_info c ON a.ower_id = c.user_id
+		LEFT JOIN tb_book_category d ON a.book_category_id=d.book_category_id		
+		<where>
+			<if test="bookCondition.bookName != null"> AND a.book_name like '%${bookCondition.bookName}%'</if>
+			<if test="bookCondition.enableStatus != null">AND a.enable_status=#{bookCondition.enableStatus}</if>
+			<if test="bookCondition.ower != null 
+				and bookCondition.ower.userId != null">
+				AND a.ower_id=#{bookCondition.ower.userId}
+			</if>
+			<if test="bookCondition.area != null 
+				and bookCondition.area.areaId != null">
+				AND a.area_id=#{bookCondition.area.areaId}
+			</if>
+			<if test="bookCondition.bookCategory != null 
+				and bookCondition.bookCategory.bookCategoryId != null">
+				AND a.book_category_id=#{bookCondition.bookCategory.bookCategoryId}
+			</if>
+			<if test="bookCondition.bookCategory != null 
+				and bookCondition.bookCategory.parent != null
+				and bookCondition.bookCategory.parent.bookCategoryId != null">
+				AND a.book_category_id IN (
+					SELECT book_category_id FROM tb_book_category 
+					WHERE parent_id =  #{bookCondition.bookCategory.parent.bookCategoryId}
+				)
+			</if>
+			<if test="bookCondition.endStatus != null">
+				AND end_status=#{bookCondition.endStatus}
+			</if>
+		</where>
+		ORDER BY 
+		<if test="updateFlag == 1">a.last_edit_time,</if>
+		<if test="publishFlag == 1">a.create_time,</if>
+		a.priority DESC
+		LIMIT #{rowIndex},#{pageSize};
+	</select>
+	
+	<select id="queryBookCount" resultType="int">
+		SELECT 
+			count(1)
+		FROM 
+			tb_book a
+		LEFT JOIN tb_area b ON a.area_id=b.area_id
+		LEFT JOIN tb_person_info c ON a.ower_id = c.user_id
+		LEFT JOIN tb_book_category d ON a.book_category_id=d.book_category_id		
+		<where>
+			<if test="bookCondition.bookName != null"> AND a.book_name like '%${bookCondition.bookName}%'</if>
+			<if test="bookCondition.enableStatus != null">AND a.enable_status=#{bookCondition.enableStatus}</if>
+			<if test="bookCondition.ower != null 
+				and bookCondition.ower.userId != null">
+				AND a.ower_id=#{bookCondition.ower.userId}
+			</if>
+			<if test="bookCondition.area != null 
+				and bookCondition.area.areaId != null">
+				AND a.area_id=#{bookCondition.area.areaId}
+			</if>
+			<if test="bookCondition.bookCategory != null 
+				and bookCondition.bookCategory.bookCategoryId != null">
+				AND a.book_category_id=#{bookCondition.bookCategory.bookCategoryId}
+			</if>
+			<if test="bookCondition.bookCategory != null 
+				and bookCondition.bookCategory.parent != null
+				and bookCondition.bookCategory.parent.bookCategoryId != null">
+				AND a.book_category_id IN (
+					SELECT book_category_id FROM tb_book_category 
+					WHERE parent_id =  #{bookCondition.bookCategory.parent.bookCategoryId}
+				)
+			</if>
+			<if test="bookCondition.endStatus != null">
+				AND end_status=#{bookCondition.endStatus}
+			</if>
+		</where>
+	</select>
+	
+	<select id="queryBookById" resultMap="bookMap">
+		SELECT 
+			a.book_id,
+			c.user_id ower_id,
+			c.name,
+			b.area_id,
+			b.area_name,
+			d.book_category_id,
+			d.book_category_name,
+			a.book_name,
+			a.book_desc,
+			a.book_img,
+			a.priority,
+			case 
+				when a.author is null 
+					or isNull(a.author)=0 then '暂无信息' 
+				else a.author 
+			end author,
+			date_format(a.create_time,'%Y-%m-%d') create_time,
+			date_format(a.last_edit_time,'%Y-%m-%d')  last_edit_time,
+			a.enable_status,a.end_status
+		FROM 
+			tb_book a
+		LEFT JOIN tb_area b ON a.area_id=b.area_id
+		LEFT JOIN tb_person_info c ON a.ower_id = c.user_id
+		LEFT JOIN tb_book_category d ON a.book_category_id=d.book_category_id		
+		WHERE a.book_id=#{bookId};
+	</select>
+	
+	<insert id="insertBook" useGeneratedKeys="true"
+		keyColumn="book_id" keyProperty="bookId">
+		INSERT INTO tb_book(
+			ower_id,
+			area_id,
+			book_category_id,
+			book_name,
+			book_desc,
+			book_img,
+			priority,
+			create_time,last_edit_time,enable_status,end_status,author
+		) VALUES (
+			#{ower.userId},
+			#{area.areaId},
+			#{bookCategory.bookCategoryId},
+			#{bookName},
+			#{bookDesc},
+			#{bookImg},
+			#{priority},
+			NOW(),NOW(),1,0,#{author}
+		);
+	</insert>
+	
+	<delete id="deleteBook">
+		DELETE FROM tb_book WHERE book_id=#{bookId};
+	</delete>
+	
+	<delete id="batchDeleteBook" parameterType="long">
+		DELETE FROM tb_book WHERE book_id IN 
+		<foreach collection="list" item="bookId"
+			open="(" close=")" separator=",">
+			#{bookId}
+		</foreach>
+	</delete>
+	
+	<update id="updateBook">
+		UPDATE tb_book 
+		<set>
+			<if test="ower != null and ower.user_id != null">ower_id=#{ower.userId},</if>
+			<if test="area != null and area.areaId != null">area_id=#{area.areaId},</if>
+			<if test="bookCategory != null and bookCategory.bookCategoryId != null">book_category_id=#{bookCategory.bookCategoryId},</if>
+			<if test="bookName != null">book_name=#{bookName},</if>
+			<if test="bookDesc != null">book_desc=#{bookDesc},</if> 
+			<if test="bookImg != null">book_img=#{bookImg},</if>
+			<if test="priority != null">priority=#{priority},</if>
+			<if test="enableStatus != null">enable_status=#{enableStatus},</if>
+			<if test="endStatus != null">end_status=#{endStatus},</if>
+			<if test="author != null">author=#{author}</if>
+			last_edit_time=NOW()
+		</set>
+		WHERE book_id=#{bookId};
+	</update>
+
+
+</mapper>

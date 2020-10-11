@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mall.dao.UserHistoryDao">
+    <resultMap type="com.mall.model.UserHistory"
+               id="userHistoryMap">
+        <id property="userHistoryId" column="user_history_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <association property="book"  column="book_id" javaType="com.mall.model.Book">
+            <id column="book_id" property="bookId"/>
+            <result column="book_name" property="bookName"/>
+        </association>
+        <association property="article" column="article_id" javaType="com.mall.model.BookArticle">
+            <id column="article_id" property="articleId"/>
+            <result column="article_name" property="articleName"/>
+        </association>
+    </resultMap>
+
+    <select id="selectUserHistoryList"
+            resultMap="userHistoryMap">
+        SELECT
+            a.tb_user_history user_history_id,
+            a.user_id,
+            b.book_id,
+            date_format(a.create_time,'%Y-%m-%d') create_time,
+            b.book_name,
+            c.article_id,
+            c.article_name
+        FROM
+            tb_user_history a,tb_book b,tb_book_article c
+        WHERE a.book_id = b.book_id AND a.article_id = c.article_id
+        AND a.user_id=#{userId}
+        <if test="info != null">
+            AND (c.article_name like '%${info}%'
+            OR b.book_name like '%${info}%')
+        </if>
+        <if test="bookId > 0">
+            AND a.book_id = #{bookId}
+        </if>
+        ORDER BY a.create_time DESC
+    </select>
+</mapper>
