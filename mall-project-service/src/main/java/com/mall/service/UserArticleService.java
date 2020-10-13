@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mall.dto.ResultExecution;
 import com.mall.entity.UserArticleEntity;
 import com.mall.model.UserArticle;
+import org.springframework.cache.annotation.Cacheable;
 
 /**
  * 

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mall.dto.ResultExecution;
 import com.mall.entity.BookArticleEntity;
 import com.mall.model.BookArticle;
+import org.springframework.cache.annotation.Cacheable;
 
 /**
  * 

@@ -13,8 +13,8 @@
         <!-- 日志默认同类型日志,同一文件夹下可以存放的数量,不设置此属性则默认为7个 -->
         <Property name="FILE_MAX_HISTORY">50</Property>
         <Property name="FILE_MAX_SIZE">50MB</Property>
-<!--        <Property name="PROJECT_PATH">D:/spring_web/poslog/imooc</Property>-->
-        <Property name="PROJECT_PATH">C:/spring_web/poslog/iBook</Property>
+        <Property name="PROJECT_PATH">D:/spring_web/poslog/imooc</Property>
+<!--        <Property name="PROJECT_PATH">C:/spring_web/poslog/iBook</Property>-->
     </Properties>
 
     <!--定义appender -->

@@ -6,7 +6,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.mall.dto.ImageHolder;
 import com.mall.dto.ResultExecution;
 import com.mall.entity.HeadLineEntity;
-import com.mall.model.*;;
+import com.mall.model.*;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;;
 
 /**
  * 
@@ -15,6 +17,7 @@ import com.mall.model.*;;
  * @email 1670775501@qq.com
  * @date 2020-06-13 18:36:25
  */
+@CacheConfig(cacheNames = "headLineService")
 public interface HeadLineService extends IService<HeadLineEntity> {
 	/*
 	   *  增加头条
@@ -44,6 +47,7 @@ public interface HeadLineService extends IService<HeadLineEntity> {
 	 * 查询头条
 	 * @return
 	 * */
+	@Cacheable
 	List<HeadLine> getHeadLineList(HeadLine headLine);
 }
 
